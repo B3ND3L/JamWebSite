@@ -2,21 +2,21 @@
 
   class databaseConnector{
 
-      const USERNAME = "jamdb";
+      const USERNAME='jamdb';
       const PASSWORD = "jamdb";
-      protected $database = null;
+      protected $database;
 
       public function databaseConnector(){
 
-        $database = new PDO('mysql:host=localhost;dbname=jamdb;charset=utf8mb4', USERNAME, PASSWORD);
-        $database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $database->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        $this->database = new PDO('mysql:host=localhost;dbname=jamdb;charset=utf8mb4', self::USERNAME, self::PASSWORD);
+        $this->database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->database->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
       }
 
       public function addUser($name, $email, $date){
         try {
-            $stmt = self::$database->query('INSERT INTO users VALUES (?,?,?)');
+            $stmt = $this->database->prepare('INSERT INTO users (`name`,`email`,`date`) VALUES (?,?,?)');
             $stmt->execute(array($name,$email,$date));
 
         } catch(PDOException $ex) {
@@ -26,33 +26,53 @@
 
       public function addPssword($id, $passwd){
 
-          $stmt = self::$database->query('InSERT INTO passwords VALUES(?,?)');
+          $stmt = $this->database->prepare('INSERT INTO passwords VALUES(?,?)');
           $stmt->execute(array($id, $passwd));
       }
 
       public function getUserByName($name){
-          $stmt = self::$database->query('SELECT id, name, email FROM users WHERE name=?');
+          $stmt = $this->database->prepare('SELECT id, name, email FROM users WHERE name=?');
           $stmt->execute(array($name));
+          $result = $stmt->fetch();
+          return $result;
       }
 
       public function getUserByEmail($email){
-          $stmt = self::$database->query('SELECT id, name, email FROM users WHERE email=?');
+          $stmt = $this->database->prepare('SELECT id, name, email FROM users WHERE email=?');
           $stmt->execute(array($email));
+          $result = $stmt->fetchColumn(0);
+          return $result;
       }
 
       public function getIdByName($name){
-          $stmt = self::$database->query('SELECT id FROM users WHERE name=?');
+          $stmt = $this->database->prepare('SELECT id FROM users WHERE name=?');
           $stmt->execute(array($name));
+          $result = $stmt->fetchColumn(0);
+          return $result;
       }
 
       public function getIdByEmail($email){
-          $stmt = self::$database->query('SELECT id FROM users WHERE email=?');
+          $stmt = $this->database->prepare('SELECT id FROM users WHERE email=?');
           $stmt->execute(array($email));
+          $result = $stmt->fetchColumn(0);
+          return $result;
       }
 
       public function getPassword($id){
-          $stmt = self::$database->query('SELECT password FROM passwords WHERE user_id=?');
+          $stmt = $this->database->prepare('SELECT password FROM passwords WHERE user_id=?');
           $stmt->execute(array($id));
+          $result = $stmt->fetchColumn(0);
+          return $result;
+      }
+
+      public function getDatabase()
+      {
+          return $this->database;
+      }
+
+      public function setDatabase($database)
+      {
+          $this->database = $database;
       }
   }
 
